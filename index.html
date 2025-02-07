@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe con IA</title>
+  <style>
+    body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #ffe6e6;
+}
+h1 {
+  color: #ff6f91;
+}
+.board {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  gap: 10px;
+}
+.cell {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+  border: 2px solid #ff6f91;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.cell.taken {
+  pointer-events: none;
+}
+.message {
+  margin-top: 20px;
+  color: #ff6f91;
+  font-size: 18px;
+}
+.restart {
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  background-color: #ff6f91;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+  </style>
+</head>
+<script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').then(() => {
+        console.log('Service Worker registrado!');
+      }).catch(error => {
+        console.log('Error al registrar el Service Worker', error);
+      });
+    }
+  </script>
+<body>
+  <h1>Tic Tac Toe con IA 💖</h1>
+  <div class="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+  <div class="message"></div>
+  <button class="restart" onclick="restartGame()">Reiniciar</button>
+
+  <script>
+    const cells = document.querySelectorAll('.cell');
+    const message = document.querySelector('.message');
+    let board = Array(9).fill(null);
+    let player = 'X';
+    let computer = 'O';
+
+    const winMessages = [
+      "¡Eres el mejor! 🥰",
+      "Siempre ganas mi corazón ❤️",
+      "Tú y yo, invencibles 💪"
+    ];
+
+    const loseMessages = [
+      "La computadora ganó esta vez 😢",
+      "¡No te rindas! Inténtalo otra vez 💪",
+      "Sigue jugando, ¡seguro ganas pronto! 😊"
+    ];
+
+    const winningCombos = [
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6]
+    ];
+
+    function checkWin(currentPlayer) {
+      return winningCombos.some(combo =>
+        combo.every(index => board[index] === currentPlayer)
+      );
+    }
+
+    function handleClick(e) {
+      const index = e.target.dataset.index;
+      if (board[index] || message.textContent) return;
+
+      board[index] = player;
+      e.target.textContent = player;
+      e.target.classList.add('taken');
+
+      if (checkWin(player)) {
+        message.textContent = winMessages[Math.floor(Math.random() * winMessages.length)];
+        return;
+      }
+
+      if (board.every(cell => cell)) {
+        message.textContent = "¡Es un empate! 😲";
+        return;
+      }
+
+      setTimeout(computerMove, 500);
+    }
+
+    function computerMove() {
+      let emptyCells = board.map((cell, i) => cell === null ? i : null).filter(i => i !== null);
+      if (emptyCells.length === 0) return;
+
+      let move = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      board[move] = computer;
+      cells[move].textContent = computer;
+      cells[move].classList.add('taken');
+
+      if (checkWin(computer)) {
+        message.textContent = loseMessages[Math.floor(Math.random() * loseMessages.length)];
+      }
+    }
+
+    function restartGame() {
+      board.fill(null);
+      cells.forEach(cell => {
+        cell.textContent = "";
+        cell.classList.remove('taken');
+      });
+      message.textContent = "";
+    }
+
+    cells.forEach(cell => cell.addEventListener('click', handleClick));
+  </script>
+</body>
+</html>
